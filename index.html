@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="OracleGraph：10,000 页古籍文档的 2.5D 结构化生成基准；PRISM：基于图诊断与奖励感知自蒸馏的多模态结构化生成框架。">
+  <meta name="theme-color" content="#2563eb">
+  <meta property="og:title" content="OracleGraph & PRISM · 多模态结构化生成">
+  <meta property="og:description" content="从古籍页面到结构图：评测并稳定优化多模态模型的视觉、结构与关系推理。">
+  <title>OracleGraph & PRISM — 多模态结构化生成基准与框架</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232563eb'/%3E%3Cpath d='M8 23 16 7l8 16ZM8 23l8-6 8 6M16 7v10' fill='none' stroke='white' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到正文</a>
+  <nav class="navbar" aria-label="主导航">
+    <div class="nav-inner">
+      <a class="brand" href="#top"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M6 25 16 5l10 20ZM6 25l10-8 10 8M16 5v12"/></svg>OracleGraph <span>& PRISM</span></a>
+      <button class="menu-toggle" aria-expanded="false" aria-controls="nav-links" aria-label="展开导航">☰</button>
+      <div id="nav-links" class="nav-links">
+        <a href="#motivation">研究背景</a><a href="#dataset">数据集</a><a href="#method">PRISM 方法</a><a href="#results">实验结果</a><a href="#analysis">消融分析</a><a href="#citation" class="nav-pill">论文资源</a>
+      </div>
+    </div>
+  </nav>
+
+  <header id="top" class="hero">
+    <div class="hero-inner">
+      <p class="eyebrow">ORACLEGRAPH DATASET · PRISM FRAMEWORK</p>
+      <h1>Benchmarking and Optimizing Multimodal Structured Generation: <span>The OracleGraph Dataset and PRISM Framework</span></h1>
+      <p class="hero-subtitle">多模态结构化生成的评测与优化：OracleGraph 数据集与 PRISM 框架</p>
+      <div class="authors">Anonymous Author(s)</div>
+      <p class="author-note">匿名投稿稿件 · NeurIPS 2026</p>
+      <div class="stats">
+        <div class="stat blue"><strong>10,000</strong><span>古籍文档页面</span></div>
+        <div class="stat amber"><strong>~275K</strong><span>类型化标注</span></div>
+        <div class="stat green"><strong>12</strong><span>诊断式 VQA 维度</span></div>
+        <div class="stat violet"><strong>2.5D</strong><span>空间与遮挡层次建模</span></div>
+      </div>
+      <div class="hero-links">
+        <a class="button paper" href="assets/paper.pdf" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h8l4 4v14H6ZM14 3v5h4M9 12h6M9 16h6"/></svg>Paper</a>
+        <a class="button github" href="https://github.com/szh0808/oraclegraph-prism-project-page" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 19c-5 1-5-2-7-2m14 5v-4c0-1-.3-2-1-2 4-.5 7-2 7-6a5 5 0 0 0-1-3 5 5 0 0 0 0-4s-2-1-5 1a14 14 0 0 0-7 0C6 2 4 3 4 3a5 5 0 0 0 0 4 5 5 0 0 0-1 3c0 4 3 5.5 7 6-.7.5-1 1-1 2v4"/></svg>GitHub · 网页源码</a>
+        <a class="button code" href="https://anonymous.4open.science/r/PRISM2026" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 7-5 5 5 5m8-10 5 5-5 5M14 4l-4 16"/></svg>Code & Dataset</a>
+        <a class="button outline" href="#citation">引用本文</a>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" class="container">
+    <section class="abstract card" aria-labelledby="abstract-title">
+      <h2 id="abstract-title"><span class="section-icon">❝</span> Abstract</h2>
+      <p>严格的结构化生成仍是多模态大语言模型的关键瓶颈。监督微调（SFT）容易触及性能上限，而 DPO、GRPO、SimPO 等标量奖励方法将漫长的结构推理轨迹压缩为稀疏信号，导致<strong>策略层面的信号缺口与短输出偏置</strong>；普通自蒸馏甚至可能发生退化。为系统评测视觉、结构和关系联合推理，我们提出 <strong>OracleGraph</strong>：包含 10,000 页古籍文档、12 维诊断式 VQA 和结构幻觉分类体系的 2.5D 基准。进一步提出 <strong>PRISM</strong>，以图诊断报告（DGR）引导具有信息优势的回顾式教师，结合 Softmax 奖励加权聚合和长度归一化辅助偏好损失，稳定长序列结构生成。</p>
+      <p>在匹配秩与训练步数的实验中，PRISM 相比 Vanilla-SDPO 的 Graph Reward 提高 <strong>3.81 个百分点（p &lt; 0.001）</strong>。相比 SFT，平均增益为 1.02 个百分点，尚未达到统计显著性（p = 0.12）；更明确的优势是跨种子稳定性：同分布与跨书籍 OOD 评测中的标准差分别约为 SFT 的 <strong>1/2.4 与 1/14</strong>。</p>
+    </section>
+
+    <section id="motivation" class="section card">
+      <div class="two-columns motivation">
+        <div>
+          <div class="heading-inline"><span class="section-icon">01</span><h2>研究背景与动机</h2></div>
+          <p class="lead">读懂文字之后，还要读懂页面的结构。</p>
+          <p>古籍页面不是线性的文本：竖排正文、双行夹注、眉批、朱印与跨栏阅读顺序交织在一起。模型需要将这些视觉元素转换成符合 schema 的 JSON 图，明确“谁先读”“谁注释谁”以及“谁遮挡谁”。</p>
+          <div class="problem red"><h3>稀疏奖励，丢失局部结构信号</h3><p>一个标量难以定位长 JSON 中的节点、关系和拓扑错误。不可解析的输出会遇到零奖励断崖。</p></div>
+          <div class="problem orange"><h3>短输出偏置与自蒸馏退化</h3><p>模型可能通过缩短响应规避解析风险；缺少图诊断与奖励感知的教师，也可能传递错误结构。</p></div>
+        </div>
+        <figure class="historical-figure">
+          <button class="zoom-image" data-zoom="assets/water-margin.webp" data-caption="论文 Figure 3 · 《水浒传》刻本页面" aria-label="放大《水浒传》刻本页面"><img src="assets/water-margin.webp" alt="古籍《水浒传》页面，正文与双行夹注并列，红色印章覆盖墨色文字" width="1014" height="718"></button>
+          <figcaption><strong>论文 Figure 3 · 从古籍页面到结构图</strong>双行夹注与朱印遮挡，要求模型联合理解阅读顺序与空间层次。</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section id="dataset" class="section">
+      <div class="section-heading"><p class="kicker">THE ORACLEGRAPH BENCHMARK</p><h2>OracleGraph：从二维版面到 2.5D 结构图</h2><div class="heading-rule"></div><p>用节点、关系与遮挡层次，刻画古籍中的非线性阅读结构。</p></div>
+      <div class="card tab-card">
+        <div class="tabs" role="tablist" aria-label="数据集介绍">
+          <button id="dataset-tab-overview" role="tab" aria-controls="dataset-overview" aria-selected="true" tabindex="0">数据集概览</button>
+          <button id="dataset-tab-ontology" role="tab" aria-controls="dataset-ontology" aria-selected="false" tabindex="-1">类型图与诊断任务</button>
+        </div>
+        <div id="dataset-overview" class="tab-panel" role="tabpanel" aria-labelledby="dataset-tab-overview">
+          <div class="dataset-summary"><h3>10,000 页，三种互补用途</h3><p>数据覆盖刻本小说、历史账册与手抄文献；5,000 页人工标注用于训练，500 页用于诊断审计，4,500 页合成页面用于压力测试。</p></div>
+          <div class="split-bar" role="img" aria-label="训练标注 50%，VQA 审计 5%，合成压力测试 45%"><span class="split-train">50%</span><span class="split-audit" aria-hidden="true"></span><span class="split-stress">45%</span></div>
+          <div class="three-columns split-cards"><article><span class="dot blue-dot"></span><strong>5,000</strong><h4>人工标注页面</h4><p>SFT 预热与 RL 对齐</p></article><article><span class="dot amber-dot"></span><strong>500</strong><h4>独立 VQA 审计页</h4><p>检验诊断能力与结构盲点</p></article><article><span class="dot violet-dot"></span><strong>4,500</strong><h4>合成压力测试页</h4><p>布局多样性引擎生成</p></article></div>
+          <div class="note blue-note"><strong>什么是 2.5D？</strong><p>在二维坐标之外，每个节点带有离散遮挡层级 z ∈ {0, 1, 2, 3, 4}。例如，朱印所在层可高于墨色正文，使“文字识别”和“遮挡关系理解”能够分开评测。</p></div>
+          <div class="two-columns page-gallery">
+            <figure><button class="zoom-image" data-zoom="assets/water-margin.webp" data-caption="论文 Figure 3 · 《水浒传》：夹注与印章遮挡" aria-label="放大水浒传案例"><img src="assets/water-margin.webp" alt="《水浒传》双行夹注与朱印案例" width="1014" height="718" loading="lazy"></button><figcaption><strong>《水浒传》刻本</strong>双行夹注、印章侵入与阅读顺序。</figcaption></figure>
+            <figure><button class="zoom-image" data-zoom="assets/hongloumeng.webp" data-caption="论文 Figure 4 · 《红楼梦》：眉批、侧批与朱印" aria-label="放大红楼梦案例"><img src="assets/hongloumeng.webp" alt="《红楼梦》正文、跨栏侧批与上方眉批案例" width="1014" height="718" loading="lazy"></button><figcaption><strong>《红楼梦》刻本</strong>跨栏侧批、多层批注与朱印交织。</figcaption></figure>
+          </div>
+        </div>
+        <div id="dataset-ontology" class="tab-panel" role="tabpanel" aria-labelledby="dataset-tab-ontology" hidden>
+          <div class="three-columns ontology-cards"><article><strong>13</strong><h3>节点类型</h3><p>建模正文、夹注、眉批、朱印与版面元素等语义实体。</p></article><article><strong>8</strong><h3>有向边类型</h3><p>表达 READS_AFTER、ANNOTATES、OVERLAPS 等结构关系。</p></article><article><strong>5</strong><h3>遮挡层次</h3><p>离散 z-index 使覆盖、层叠与视觉干扰具备可检查的表示。</p></article></div>
+          <h3>12 维诊断式 VQA</h3><p>以基本逻辑、全局元素和高级二维空间推理为三组，分别暴露模型在页面理解中的不同短板。</p>
+          <div class="metric-groups"><article><h4>基本逻辑 · Basic Logic</h4><p>BVR · HCE · NIR</p></article><article><h4>全局元素 · Global Elements</h4><p>GQR · EXR · SCR</p></article><article><h4>高级二维空间 · Advanced 2D Spatial</h4><p>SVC · CCB · RVR · AGC · MBCV · EFD</p></article></div>
+          <div class="note blue-note"><strong>结构幻觉，不能只看 OCR 准确率</strong><p>论文建立了 30 余类结构幻觉分类，覆盖层级与阅读顺序、修改符号以及多模态遮挡。Graph-F1 采用节点与边类别的确定性宏平均 F1，检查生成图的拓扑一致性。</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="method" class="section">
+      <div class="section-heading"><p class="kicker">POLICY-REWARD INTEGRATED SELF-DISTILLATION</p><h2>PRISM：让结构反馈进入策略优化</h2><div class="heading-rule"></div><p>图诊断、奖励加权与长度归一化偏好约束共同稳定自蒸馏。</p></div>
+      <div class="card figure-card"><h3>框架总览 <span class="small-label">论文 Figure 1</span></h3><button class="zoom-image" data-zoom="assets/prism-framework.png" data-caption="论文 Figure 1 · PRISM 框架" aria-label="放大 PRISM 框架图"><img src="assets/prism-framework.png" alt="PRISM 框架图：盲学生生成候选，回顾式教师接收图诊断，Graph-F1 奖励引导加权蒸馏和辅助偏好损失，EMA 更新教师" width="1205" height="451" loading="lazy"></button><p class="figure-description">学生仅接收图像和提示；教师额外获得从真值图生成的 DGR。候选轨迹由 Graph-F1 评分，训练将密集的 token 级蒸馏与序列级偏好约束结合起来。</p></div>
+      <div class="two-columns method-cards">
+        <article class="card"><span class="step-badge">A</span><h3>信息不对称与 DGR 教师</h3><p>回顾式教师接收基于真值结构的诊断报告，获得拓扑与错误类型信息。盲学生仍需从图像中自主生成，信息差形成有方向的学习信号。</p><span class="method-tag">Hindsight Teacher</span></article>
+        <article class="card"><span class="step-badge amber-badge">B</span><h3>Softmax 奖励加权聚合</h3><p>根据 Graph-F1 奖励为 rollout 轨迹分配权重，保留好坏候选的结构排序，降低错误拓扑在蒸馏梯度中的影响。</p><span class="method-tag">Reward-Weighted Aggregation</span></article>
+        <article class="card"><span class="step-badge green-badge">C</span><h3>长度归一化辅助偏好损失</h3><p>比较最佳与最差候选的归一化对数概率，扩大胜负轨迹间隔，并抑制因奖励稀疏而产生的短输出偏置。</p><span class="method-tag">Auxiliary Preference Loss</span></article>
+        <article class="card"><span class="step-badge violet-badge">D</span><h3>EMA 教师更新</h3><p>教师通过指数移动平均跟踪学生，在保留结构锚点的同时缓和训练波动，为长序列学习提供持续、平滑的参考。</p><span class="method-tag">Exponential Moving Average</span></article>
+      </div>
+    </section>
+
+    <section id="results" class="section">
+      <div class="section-heading"><p class="kicker">RESULTS & EVALUATION</p><h2>核心实验结果</h2><div class="heading-rule"></div><p>比较平均性能，也比较跨种子稳定性。</p></div>
+      <div class="three-columns result-highlights"><article class="card"><span>相对 Vanilla-SDPO</span><strong>+3.81<span>pp</span></strong><p>Graph Reward · p &lt; 0.001<br>95% CI [+1.95, +5.76] pp</p></article><article class="card"><span>同分布跨种子标准差</span><strong>2.4<span>×</span></strong><p>SFT / PRISM：0.65 / 0.27 pp<br>标准差比值（Table 2）</p></article><article class="card"><span>跨书籍 OOD 标准差</span><strong>14<span>×</span></strong><p>SFT / PRISM：2.39 / 0.17 pp<br>标准差比值（Table 15）</p></article></div>
+      <div class="card tab-card">
+        <div class="tabs" role="tablist" aria-label="实验结果类型"><button id="results-tab-rl" role="tab" aria-controls="results-rl" aria-selected="true" tabindex="0">结构化生成 · RL 对比</button><button id="results-tab-vqa" role="tab" aria-controls="results-vqa" aria-selected="false" tabindex="-1">诊断式 VQA</button><button id="results-tab-ood" role="tab" aria-controls="results-ood" aria-selected="false" tabindex="-1">跨书籍 OOD</button></div>
+        <div id="results-rl" class="tab-panel" role="tabpanel" aria-labelledby="results-tab-rl">
+          <div class="table-heading"><div><h3>匹配协议下的结构化生成</h3><p>LoRA r = 32 · RL 100 步 · n = 100 独立评测页 · 3 个随机种子</p></div><span class="table-source">论文 Table 2</span></div>
+          <div class="table-scroll" tabindex="0" role="region" aria-label="RL 实验结果，可横向滚动"><table><caption class="sr-only">Graph Reward、跨种子标准差、相对 SFT 增益与解析率</caption><thead><tr><th scope="col">方法</th><th scope="col">Graph Reward ↑</th><th scope="col">跨种子 std ↓</th><th scope="col">Δ vs. SFT</th><th scope="col">p vs. SFT</th><th scope="col">解析率</th><th scope="col">响应长度</th></tr></thead><tbody>
+            <tr><th scope="row">SFT baseline <span class="cell-note">1,000 步</span></th><td>72.94%</td><td>0.65 pp</td><td>—</td><td>—</td><td>98.0%</td><td>1,337</td></tr>
+            <tr><th scope="row">DPO</th><td>73.64%</td><td>0.39 pp</td><td>+0.70 pp</td><td>0.33</td><td>98.3%</td><td>1,312</td></tr>
+            <tr><th scope="row">GRPO</th><td>73.74%</td><td>1.77 pp</td><td>+0.80 pp</td><td>0.41</td><td>98.0%</td><td>1,338</td></tr>
+            <tr><th scope="row">SimPO</th><td>72.65%</td><td>1.05 pp</td><td>−0.29 pp</td><td>0.68</td><td>96.7%</td><td>1,390</td></tr>
+            <tr><th scope="row">Vanilla-SDPO</th><td>70.15%</td><td>1.73 pp</td><td class="negative">−2.79 pp</td><td>&lt; 0.01</td><td>94.0%</td><td>1,555</td></tr>
+            <tr class="ours"><th scope="row">PRISM <span class="our-label">Ours</span></th><td><strong>73.96%</strong></td><td><strong>0.27 pp</strong></td><td>+1.02 pp</td><td>0.12</td><td>96.3%</td><td>1,431</td></tr>
+          </tbody></table></div>
+          <div class="note amber-note"><strong>性能提升的统计边界</strong><p>PRISM 相对 SFT 的 +1.02 pp 增益不显著（p = 0.12）；相对 Vanilla-SDPO 的 +3.81 pp 增益显著（10,000 次重采样配对 bootstrap，p &lt; 0.001）。PRISM 的解析率高于 Vanilla-SDPO，但低于 SFT。这里的 2.4× 是标准差比值，不能解读为方差比值。</p></div>
+        </div>
+        <div id="results-vqa" class="tab-panel" role="tabpanel" aria-labelledby="results-tab-vqa" hidden>
+          <div class="table-heading"><div><h3>12 维诊断式 VQA · 结果概览</h3><p>Avg 为 12 项准确率的非加权均值；Win/12 为严格优于 Qwen2.5-VL-7B 的维度数。</p></div><span class="table-source">论文 Table 1</span></div>
+          <div class="table-scroll" tabindex="0" role="region" aria-label="VQA 结果，可横向滚动"><table><thead><tr><th scope="col">模型</th><th scope="col">规模</th><th scope="col">Avg ↑</th><th scope="col">Win / 12</th></tr></thead><tbody>
+            <tr><th scope="row">Llama-3.2-11B-Vision-Ins</th><td>11B</td><td>2.91%</td><td>0</td></tr><tr><th scope="row">Gemma-3-12B-IT</th><td>12B</td><td>5.02%</td><td>0</td></tr><tr><th scope="row">InternVL3-8B</th><td>8B</td><td>3.28%</td><td>0</td></tr><tr><th scope="row">InternVL2.5-8B</th><td>8B</td><td>3.55%</td><td>0</td></tr><tr><th scope="row">Qwen2.5-VL-7B-Ins</th><td>7B</td><td>18.90%</td><td>参考</td></tr><tr><th scope="row">Ovis2-8B</th><td>8B</td><td>13.45%</td><td>2</td></tr><tr><th scope="row">Qwen3-VL-8B · Base</th><td>8B</td><td>23.41%</td><td>9</td></tr><tr><th scope="row">Qwen3-VL-8B · SFT</th><td>8B</td><td><strong>26.17%</strong></td><td>10</td></tr><tr class="ours"><th scope="row">PRISM · seed 42, step 100</th><td>8B</td><td>26.05%</td><td>10</td></tr><tr class="ours"><th scope="row">PRISM · seed 2024, step 180</th><td>8B</td><td>25.89%</td><td>10</td></tr>
+          </tbody></table></div>
+          <div class="note blue-note"><strong>结构专长，保持通用诊断能力</strong><p>PRISM 对齐后的 8B 模型在结构子集上达到 17.1%，高于论文比较中的 Qwen2.5-VL-7B（9.4%）。12 维整体均值仍略低于 SFT；VQA 与 Graph Reward 是不同任务的指标。闭源、推理增强模型仅作参考，不纳入此处同规模开源模型对比。</p></div>
+        </div>
+        <div id="results-ood" class="tab-panel" role="tabpanel" aria-labelledby="results-tab-ood" hidden>
+          <div class="table-heading"><div><h3>跨书籍 OOD · 稳定性探针</h3><p>《西游记》与《资治通鉴》合成页面 · n = 100 · seeds {42, 7, 2024}</p></div><span class="table-source">论文 Table 15</span></div>
+          <div class="table-scroll" tabindex="0" role="region" aria-label="OOD 跨种子结果，可横向滚动"><table><thead><tr><th scope="col">方法</th><th scope="col">Seed 42</th><th scope="col">Seed 7</th><th scope="col">Seed 2024</th><th scope="col">跨种子 std ↓</th></tr></thead><tbody><tr><th scope="row">SFT-r32-1000</th><td>16.64%</td><td>21.69%</td><td>21.74%</td><td>2.39 pp</td></tr><tr><th scope="row">DPO</th><td>16.75%</td><td>17.30%</td><td>18.19%</td><td>0.59 pp</td></tr><tr class="ours"><th scope="row">PRISM</th><td>18.48%</td><td>18.08%</td><td>18.31%</td><td><strong>0.17 pp</strong></td></tr></tbody></table></div>
+          <div class="note amber-note"><strong>稳定性优势 ≠ 显著的平均泛化优势</strong><p>PRISM 三种子平均 Graph Reward 为 18.29%。论文报告所有成对平均差异均不显著（p ≥ 0.19）；较明确的是标准差约为 SFT 的 1/14。该探针同时改变书籍来源与布局密度，不能单独证明纯粹的跨书籍泛化。</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="analysis" class="section">
+      <div class="section-heading"><p class="kicker">MECHANISMS & ABLATIONS</p><h2>为什么更稳定？</h2><div class="heading-rule"></div><p>从教师反馈、关系恢复和组件消融，定位改进来源。</p></div>
+      <div class="card figure-card"><h3>训练动态与 DGR 反馈 <span class="small-label">论文 Figure 2</span></h3><button class="zoom-image" data-zoom="assets/training-dynamics.png" data-caption="论文 Figure 2 · 训练损失、奖励轨迹与 DGR 消融" aria-label="放大训练动态图"><img src="assets/training-dynamics.png" alt="论文训练动态：PRISM 的 Top-K JSD 损失、不同方法的 rollout 奖励轨迹、DGR 反馈形式对比" width="1203" height="323" loading="lazy"></button><div class="note neutral-note"><p>图中的训练时平滑 rollout reward 与独立评测的 Graph Reward 口径不同；SDPO 曲线采用消融中的 short-DGR 代理。最终性能比较以 Table 2 的匹配协议结果为准。</p></div></div>
+      <div class="two-columns analysis-cards">
+        <article class="card"><h3>DGR：反馈粒度影响优化</h3><p>在匹配 r = 32 协议下，L2 的均值最高；auto 在误差类型间动态选择报告粒度。均值与稳定性需要分别判断。</p><div class="compact-table table-scroll"><table><thead><tr><th scope="col">DGR 形式</th><th scope="col">Graph Reward</th></tr></thead><tbody><tr><th scope="row">None</th><td>70.15% ± 1.41 pp</td></tr><tr><th scope="row">L0</th><td>73.49% ± 1.04 pp</td></tr><tr><th scope="row">L2</th><td><strong>74.59% ± 1.14 pp</strong></td></tr><tr><th scope="row">L3</th><td>73.77% ± 0.67 pp</td></tr><tr><th scope="row">short</th><td>73.09% ± 0.93 pp</td></tr><tr><th scope="row">long</th><td>73.12% ± 0.21 pp</td></tr><tr class="ours"><th scope="row">auto · PRISM</th><td>73.96% ± 0.27 pp</td></tr></tbody></table></div><p class="source-note">Table 3。long 的标准差为 0.21 pp，低于 auto；auto 并非所有 DGR 变体中方差最小。</p></article>
+        <article class="card"><h3>关系恢复：收益集中在拓扑</h3><p>相比 SFT，PRISM 的主要增益出现在阅读顺序与遮挡关系上；并非所有类型都同步改善。</p><div class="relation-result"><span>READS_AFTER · 阅读顺序</span><div><strong>57.2%</strong><span>→</span><strong class="positive">61.0%</strong></div><span class="gain">论文报告 Δ +3.8 pp</span></div><div class="relation-result"><span>OVERLAPS · 遮挡关系</span><div><strong>46.8%</strong><span>→</span><strong class="positive">49.6%</strong></div><span class="gain">论文报告 Δ +2.9 pp</span></div><div class="note neutral-note"><p>ANNOTATES 从 41.8% 降至 40.6%，夹注节点略降。显示值经四舍五入，Δ 沿用论文 Table 16。</p></div></article>
+      </div>
+      <div class="card factorial-card"><div class="table-heading"><div><h3>奖励加权 × 辅助偏好：组件协同</h3><p>匹配 r = 32、相同计算预算；同分布 n = 100，OOD n = 50。此处为单种子消融。</p></div><span class="table-source">论文 Table 17</span></div><div class="table-scroll" tabindex="0" role="region" aria-label="组件消融结果，可横向滚动"><table><thead><tr><th scope="col">方法</th><th scope="col">奖励加权 RW</th><th scope="col">辅助偏好 aux</th><th scope="col">DGR</th><th scope="col">同分布</th><th scope="col">OOD</th></tr></thead><tbody><tr><th scope="row">Vanilla-SDPO</th><td>—</td><td>—</td><td>—</td><td>70.15%</td><td>未报告</td></tr><tr><th scope="row">aux-only</th><td>—</td><td>✓</td><td>✓</td><td>73.09%</td><td>14.23%</td></tr><tr><th scope="row">rw-only</th><td>✓</td><td>—</td><td>✓</td><td>69.98%</td><td>13.56%</td></tr><tr class="ours"><th scope="row">PRISM · full</th><td>✓</td><td>✓</td><td>✓</td><td>73.59%</td><td><strong>20.40%</strong></td></tr></tbody></table></div><p class="source-note">aux 主要稳定同分布长输出，RW 主要帮助此 OOD 设置。这里的 OOD 样本量与 Table 15 不同，数值不能直接混用。</p></div>
+      <div class="two-columns findings"><article class="note blue-note"><h3>论文的核心结论</h3><p>PRISM 显著缓解普通自蒸馏的退化，并在长序列结构生成中提高跨种子稳定性。收益主要体现在视觉关系和拓扑恢复。</p></article><article class="note amber-note"><h3>局限与后续方向</h3><p>相对 SFT 的均值增益未显著；OOD 同时含来源和密度变化；复杂空间诊断仍有较大提升空间。更高分辨率感知与纯来源变化评测有待进一步探索。</p></article></div>
+    </section>
+  </main>
+
+  <footer id="citation" class="footer">
+    <div class="container footer-grid"><section><div class="citation-heading"><h2>引用本文 · BibTeX</h2><button id="copy-citation" class="copy-button">复制引用</button></div><pre id="bibtex">@misc{oraclegraph_prism2026,
+  title={Benchmarking and Optimizing Multimodal
+    Structured Generation: The OracleGraph Dataset
+    and PRISM Framework},
+  author={{Anonymous Author(s)}},
+  year={2026},
+  note={Anonymous manuscript submitted to NeurIPS 2026}
+}</pre><p class="footer-note">依据当前匿名稿件生成；正式发表后请更新作者与出版信息。</p></section><section class="resource-links"><h2>论文与研究资源</h2><p>探索 OracleGraph 的结构化评测与 PRISM 的优化方法。</p><a href="assets/paper.pdf" target="_blank" rel="noopener">论文 PDF</a><a href="https://anonymous.4open.science/r/PRISM2026" target="_blank" rel="noopener">匿名代码与数据仓库</a><a href="https://github.com/szh0808/oraclegraph-prism-project-page" target="_blank" rel="noopener">GitHub · 本介绍页源码</a></section></div>
+    <div class="container footer-bottom"><span>© 2026 · OracleGraph & PRISM</span><span>页面内容依据当前论文稿件整理</span><a href="#top">回到顶部</a></div>
+  </footer>
+  <dialog id="image-dialog" aria-labelledby="image-dialog-caption"><div class="dialog-top"><p id="image-dialog-caption"></p><button id="close-image" aria-label="关闭图表">✕</button></div><img id="dialog-image" alt=""></dialog>
+  <p id="toast" class="toast" role="status" aria-live="polite"></p>
+</body>
+</html>
