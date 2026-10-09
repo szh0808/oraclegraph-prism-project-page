@@ -2,6 +2,10 @@
 
 A responsive, Chinese-language academic project page for **Benchmarking and Optimizing Multimodal Structured Generation: The OracleGraph Dataset and PRISM Framework**.
 
+**Live website:** https://szh0808.github.io/oraclegraph-prism-project-page/
+
+Hosted on GitHub Pages from the `main` branch, repository root. Pushing updates to `main` automatically republishes the site.
+
 The visual design follows the [HCSU project page](https://ihanzi.net/static/HCSU/): a historical-document hero, compact dataset statistics, white rounded section cards, tabbed results, original paper figures, and a dark citation footer. The implementation is original and uses no remote frontend dependencies.
 
 ## Preview
