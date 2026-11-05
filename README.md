@@ -36,7 +36,7 @@ All research numbers and scientific claims are based on the supplied 31-page ano
 - Table 15's printed SFT/DPO rows use one seed, while its caption gives three-seed rewards. This page displays all three reported seeds and the caption's standard deviations; it does not claim a significant mean OOD advantage.
 - Table 3's `long` DGR variant has lower std than `auto`. The page preserves this distinction rather than calling `auto` the lowest-variance variant.
 - Table 17 is a separate single-seed component ablation with n = 50 OOD pages; these results are not merged with the n = 100 OOD probe.
-- The code/dataset button points to the anonymous repository supplied in the manuscript. The GitHub button points to this page's source, not an invented research-code release.
+- The hero and footer each provide three research resource links: **Paper** opens `assets/paper.pdf`, **权重** opens the `Tongji209/PRISM` model repository on ModelScope, and **数据集** opens the `Tongji209/OracleGraph` dataset repository on ModelScope.
 
 ## Updating after publication
 
